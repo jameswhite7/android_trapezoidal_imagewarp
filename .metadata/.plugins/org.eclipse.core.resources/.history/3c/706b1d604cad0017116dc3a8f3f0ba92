@@ -1,0 +1,128 @@
+package com.example.mybitmapmeshapp2b;
+
+import com.example.mybitmapmeshapp2b.R;
+/*import com.example.mybitmapmeshapp2b.util.SystemUiHider;*/
+
+/*import android.annotation.TargetApi;*/
+import android.app.Activity;
+import android.content.Context;
+import android.graphics.Bitmap; 
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
+/*import android.os.Build;*/
+import android.os.Bundle;
+/*import android.os.Handler;*/
+import android.view.MotionEvent;
+import android.view.View;
+
+
+public class MainActivity extends Activity {
+/*    private SystemUiHider mSystemUiHider;*/
+    private Bitmap bitmap; 
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        View decor_View = getWindow().getDecorView();
+
+        int ui_Options = View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+        | View.SYSTEM_UI_FLAG_FULLSCREEN
+        | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
+
+        decor_View.setSystemUiVisibility(ui_Options);
+        
+        
+        
+        
+        
+        
+        
+        setContentView(new MyView(this,R.drawable.psb));  
+    }     
+        class MyView extends View  
+        {  
+            private final int WIDTH = 20;  
+            private final int HEIGHT = 20;  
+            //441  
+            private final int COUNT = (WIDTH + 1) * (HEIGHT + 1);   
+            //,Bitmap21*21  
+            private final float[] verts = new float[COUNT * 2];  
+            //,Bitmap21*21  
+            //  
+            private final float[] orig = new float[COUNT * 2];  
+            public MyView(Context context, int drawableId) {  
+                super(context);  
+                setFocusable(true);  
+                //  
+                bitmap = BitmapFactory.decodeResource(getResources(), drawableId);  
+                //  
+                float bitmapWidth = bitmap.getWidth();  
+                float bitmapHeight = bitmap.getHeight();  
+                int index = 0;  
+                for(int y = 0; y <= HEIGHT; y++)  
+                {  
+                    float fy = bitmapHeight * y / HEIGHT;  
+                    for(int x = 0 ; x <= WIDTH; x++)  
+                    {  
+                        float fx = bitmapWidth * x / WIDTH;  
+                        //orig,verts  
+                        //,orig,verts21 * 21x,y?  
+                        orig[index * 2 + 0] = verts[index * 2 + 0] = fx;  
+                        orig[index * 2 + 1] = verts[index * 2 + 1] = fy;  
+                        index += 1;  
+                    }  
+                }  
+                //   
+                setBackgroundColor(Color.WHITE);  
+            }  
+            protected void onDraw(Canvas canvas)  
+            {  
+                canvas.drawBitmapMesh(bitmap, WIDTH, HEIGHT, verts, 0, null, 0, null);  
+            }  
+            //,verts  
+            private void warp(float cx, float cy)  
+            {  
+                for(int i = 0; i < COUNT * 2; i += 2)  
+                {  
+                    float dx = cx - orig[i + 0];  
+                    float dy = cy - orig[i + 1];  
+                    float dd = dx * dx + dy * dy;  
+                    //(cx,cy)  
+                    float d = (float)Math.sqrt(dd);  
+                    //?(cx,cy)?  
+                    float pull = 80000 / ((float)(dd * d));  
+                    //verts(bitmap?21 * 21)  
+                    if(pull >= 1)  
+                    {  
+                        verts[i + 0] = cx;  
+                        verts[i + 1] = cy;  
+                    }  
+                    else  
+                    {  
+                        //  
+                        verts[i + 0] = orig[i + 0] + dx * pull;  
+                        verts[i + 1] = orig[i + 1] + dx * pull;  
+                    }  
+                }  
+                //View  
+                invalidate();  
+            }  
+
+            public boolean onTouchEvent(MotionEvent event)  
+            {  
+                //warpverts  
+                warp(event.getX() , event.getY());  
+                return true;  
+            }  
+        }  
+    
+
+
+
+
+
+}

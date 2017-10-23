@@ -1,0 +1,196 @@
+package com.example.mybitmapmeshapp2b;
+
+import com.example.mybitmapmeshapp2b.R;
+/*import com.example.mybitmapmeshapp2b.util.SystemUiHider;*/
+
+/*import android.annotation.TargetApi;*/
+import android.app.Activity;
+import android.content.Context;
+import android.graphics.Bitmap; 
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Matrix;
+import android.graphics.Paint;
+import android.graphics.Point;
+/*import android.os.Build;*/
+import android.os.Bundle;
+import android.util.AttributeSet;
+/*import android.os.Handler;*/
+import android.view.MotionEvent;
+import android.view.View;
+
+
+public class MainActivity extends Activity {
+    private Bitmap bitmap; 
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        View decor_View = getWindow().getDecorView();
+
+        int ui_Options = View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+        | View.SYSTEM_UI_FLAG_FULLSCREEN
+        | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
+
+        decor_View.setSystemUiVisibility(ui_Options);
+        setContentView(new PerspectiveDistortView(this));  
+    }     
+
+    public class PerspectiveDistortView extends View implements View.OnTouchListener {
+
+    	private Paint paintRect, paintCircle;
+    	public int LEFT;
+    	public int TOP;
+    	public int RIGHT;
+    	public int BOTTOM;
+    	Point CIRCLE_TOP_LEFT;
+    	Point CIRCLE_TOP_RIGHT;
+    	Point CIRCLE_BOTTOM_LEFT;
+    	Point CIRCLE_BOTTOM_RIGHT;
+    	private int lastX, lastY;
+    	Bitmap image;
+    	Matrix matrix2;
+    	boolean isTouchCirclePoints = true;
+
+    	public PerspectiveDistortView(Context context) {
+    	    super(context);
+    	    // TODO Auto-generated constructor stub
+    	    init();
+    	}
+
+    	public PerspectiveDistortView(Context context, AttributeSet attrs) {
+    	    super(context, attrs);
+    	    // TODO Auto-generated constructor stub
+    	    init();
+    	}
+
+    	public PerspectiveDistortView(Context context, AttributeSet attrs,
+    	                              int defStyle) {
+    	    super(context, attrs, defStyle);
+    	    // TODO Auto-generated constructor stub
+    	    init();
+    	}
+
+    	private void init() {
+    	    this.setOnTouchListener(this);
+    	    paintRect = new Paint();
+    	    paintRect.setColor(0xffff0000);
+    	    paintRect.setAntiAlias(true);
+    	    paintRect.setDither(true);
+    	    paintRect.setStyle(Paint.Style.STROKE);
+    	    paintRect.setStrokeJoin(Paint.Join.BEVEL);
+    	    paintRect.setStrokeCap(Paint.Cap.BUTT);
+    	    paintRect.setStrokeWidth(3);
+    	    paintCircle = new Paint();
+    	    paintCircle.setColor(0xff000000);
+    	    paintCircle.setAntiAlias(true);
+    	    paintCircle.setDither(true);
+    	    paintCircle.setStyle(Paint.Style.FILL_AND_STROKE);
+    	    paintCircle.setStrokeJoin(Paint.Join.BEVEL);
+    	    paintCircle.setStrokeCap(Paint.Cap.BUTT);
+
+    	    LEFT = 90;
+    	    TOP = 40;
+    	    RIGHT = 500;
+    	    BOTTOM = 700;
+    	    CIRCLE_TOP_LEFT = new Point(LEFT, TOP);
+    	    CIRCLE_TOP_RIGHT = new Point(RIGHT, TOP);
+    	    CIRCLE_BOTTOM_LEFT = new Point(LEFT, BOTTOM);
+    	    CIRCLE_BOTTOM_RIGHT = new Point(RIGHT, BOTTOM);
+
+    	    image = BitmapFactory.decodeResource(getResources(), R.drawable.penguins);
+
+    	    matrix2 = new Matrix();
+    	}
+
+    	@Override
+    	protected void onDraw(Canvas canvas) {
+    	    // Free Transform bitmap
+    	    int bw = image.getWidth();
+    	    int bh = image.getHeight();
+
+    	    float[] pts = {
+    	            // source
+    	            0, 0,
+    	            0, bh,
+    	            bw, bh,
+    	            bw, 0,
+    	            // destination
+    	            0, 0,
+    	            0, 0,
+    	            0, 0,
+    	            0, 0};
+    	    pts[8] = CIRCLE_TOP_LEFT.x;
+    	    pts[9] = CIRCLE_TOP_LEFT.y;
+    	    pts[10] = CIRCLE_BOTTOM_LEFT.x;
+    	    pts[11] = CIRCLE_BOTTOM_LEFT.y;
+    	    pts[12] = CIRCLE_BOTTOM_RIGHT.x;
+    	    pts[13] = CIRCLE_BOTTOM_RIGHT.y;
+    	    pts[14] = CIRCLE_TOP_RIGHT.x;
+    	    pts[15] = CIRCLE_TOP_RIGHT.y;
+
+    	    matrix2.setPolyToPoly(pts, 0, pts, 8, 4);
+    	    canvas.drawBitmap(image, matrix2, null);
+    	    isTouchCirclePoints = false;
+
+    	    // line left
+    	    canvas.drawLine(CIRCLE_TOP_LEFT.x, CIRCLE_TOP_LEFT.y, CIRCLE_BOTTOM_LEFT.x, CIRCLE_BOTTOM_LEFT.y, paintRect);
+    	    // line top
+    	    canvas.drawLine(CIRCLE_TOP_LEFT.x, CIRCLE_TOP_LEFT.y, CIRCLE_TOP_RIGHT.x, CIRCLE_TOP_RIGHT.y, paintRect);
+    	    // line right
+    	    canvas.drawLine(CIRCLE_TOP_RIGHT.x, CIRCLE_TOP_RIGHT.y, CIRCLE_BOTTOM_RIGHT.x, CIRCLE_BOTTOM_RIGHT.y, paintRect);
+    	    // line bottom
+    	    canvas.drawLine(CIRCLE_BOTTOM_LEFT.x, CIRCLE_BOTTOM_LEFT.y, CIRCLE_BOTTOM_RIGHT.x, CIRCLE_BOTTOM_RIGHT.y, paintRect);
+    	    // circle top left
+    	    canvas.drawCircle(CIRCLE_TOP_LEFT.x, CIRCLE_TOP_LEFT.y, 10, paintCircle);
+    	    // circle top right
+    	    canvas.drawCircle(CIRCLE_TOP_RIGHT.x, CIRCLE_TOP_RIGHT.y, 10, paintCircle);
+    	    // circle bottom left
+    	    canvas.drawCircle(CIRCLE_BOTTOM_LEFT.x, CIRCLE_BOTTOM_LEFT.y, 10, paintCircle);
+    	    // circle bottom right
+    	    canvas.drawCircle(CIRCLE_BOTTOM_RIGHT.x, CIRCLE_BOTTOM_RIGHT.y, 10, paintCircle);
+    	}
+
+    	@Override
+    	public boolean onTouch(View view, MotionEvent event) {
+    	    lastX = (int) event.getX();
+    	    lastY = (int) event.getY();
+
+    	    if (inCircle(lastX, lastY, CIRCLE_TOP_LEFT.x, CIRCLE_TOP_LEFT.y, 40)) {
+    	        isTouchCirclePoints = true;
+    	        CIRCLE_TOP_LEFT.set(lastX, lastY);
+    	    } else if (inCircle(lastX, lastY, CIRCLE_TOP_RIGHT.x, CIRCLE_TOP_RIGHT.y, 40)) {
+    	        isTouchCirclePoints = true;
+    	        CIRCLE_TOP_RIGHT.set(lastX, lastY);
+    	    } else if (inCircle(lastX, lastY, CIRCLE_BOTTOM_LEFT.x, CIRCLE_BOTTOM_LEFT.y, 40)) {
+    	        isTouchCirclePoints = true;
+    	        CIRCLE_BOTTOM_LEFT.set(lastX, lastY);
+    	    } else if (inCircle(lastX, lastY, CIRCLE_BOTTOM_RIGHT.x, CIRCLE_BOTTOM_RIGHT.y, 40)) {
+    	        isTouchCirclePoints = true;
+    	        CIRCLE_BOTTOM_RIGHT.set(lastX, lastY);
+    	    }
+    	    invalidate();
+    	    return true;
+    	}
+
+    	private boolean inCircle(float x, float y, float circleCenterX, float circleCenterY, float circleRadius) {
+    	    double dx = Math.pow(x - circleCenterX, 2);
+    	    double dy = Math.pow(y - circleCenterY, 2);
+
+    	    if ((dx + dy) < Math.pow(circleRadius, 2)) {
+    	        return true;
+    	    } else {
+    	        return false;
+    	    }
+    	}
+    	}
+
+
+
+
+
+}

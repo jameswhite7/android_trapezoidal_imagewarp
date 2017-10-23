@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename Java project &apos;Trapezoid&apos; to &apos;trapezoidal_imagewarp&apos;&#x0D;&#x0A;- Original element: &apos;Trapezoid&apos;&#x0D;&#x0A;- Renamed element: &apos;Trapezoid&apos;&#x0D;&#x0A;- Update references to refactored element" description="Rename Java project &apos;Trapezoid&apos;" flags="7" id="org.eclipse.jdt.ui.rename.java.project" input="=Trapezoid" name="trapezoidal_imagewarp" references="true" stamp="1508708084802" version="1.0"/>
+</session>
