@@ -36,7 +36,7 @@ The APIDemo BitmapMesh.java file is on Github here:
 
 [https://github.com/appium/android-apidemos/blob/master/src/io/appium/android/apis/graphics/BitmapMesh.java](https://github.com/appium/android-apidemos/blob/master/src/io/appium/android/apis/graphics/BitmapMesh.java)
 
-There aren't many Android examples /samples of using an onTouch event to warp an image using drawBitmapMesh so I may uploaded a zip with a working Eclipse workspace project to show how it works.. 
+There aren't many Android examples /samples of using an onTouch event to warp an image using drawBitmapMesh so I may uploaded a zip ("myBitmapMeshApp2.zip") with a set working Eclipse workspace project files to show how it works.. 
 
 Screenshot:
 
